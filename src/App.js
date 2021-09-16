@@ -1,7 +1,8 @@
 import React, { Component } from "react";
 import * as api from "./api"
+import { readLocalStorage, writeLocalStorage } from "./utils/localStorage"
+import Home from "./pages/Home";
 import products from "./utils/demo-data";
-// import Home from "./pages/Home";
 
 class App extends Component {
   constructor(props) {
@@ -9,11 +10,15 @@ class App extends Component {
 
     this.state = {
       products: [],
+      cardItems: [],
       isLoadingSuccess: false,
       isLoading: false,
       isLoadingError: false,
       loadError: null
     }
+
+    this.handleRemove = this.handleRemove.bind(this)
+    this.handleChange = this.handleChange.bind(this)
   }
 
   componentDidMount() {
@@ -22,21 +27,30 @@ class App extends Component {
       isLoading: true
     }))
 
-    api.getProducts().then(data => {
-      this.setState(prevState => ({
-        ...prevState,
-        products: data,
-        isLoading: false,
-        isLoadingSuccess: true,
-        loadError: null
-      }))
-    })
-
+    const products = readLocalStorage("products")
+    if(!products || products.length <= 0) {
+      api.getProducts().then(data => {
+        this.setState(prevState => ({
+          ...prevState,
+          products: data,
+          isLoading: false,
+          isLoadingSuccess: true,
+          loadError: null
+        }))
+      }).catch(() => {
+        this.setState(prevState => ({
+          ...prevState,
+          isLoading: false,
+          isLoadingError: true,
+          loadError: null
+        }))
+      })
+    }
     console.log('mounted');
   }
 
   componentDidUpdate() {
-    console.log('updated');
+    writeLocalStorage("products", JSON.stringify(this.state.products))
   }
 
   componentWillUnmount() {
@@ -44,9 +58,13 @@ class App extends Component {
   }
   // handleAddToCart(productId) {}
 
-  // handleChange(event, productId) {}
+  handleChange() {
+    return console.log('hi');
+  }
 
-  // handleRemove(productId) {}
+  handleRemove() {
+    return console.log('ho');
+  }
 
   // handleDownVote(productId) {}
 
@@ -55,13 +73,18 @@ class App extends Component {
   // handleSetFavorite(productId) {}
 
   render() {
-    const { products, isLoading, isLoadingSuccess, loadError } = this.state;
+    const { products, cardItems, isLoading, isLoadingSuccess, loadError } = this.state;
 
     return (
-      <>
-        { isLoading && <h4>Loading products</h4> }
-        { !isLoading && isLoadingSuccess && products.map(product => <p>{product.title}</p>) }
-      </>
+        <Home
+          products={products}
+          cardItems={cardItems}
+          isLoading={isLoading}
+          isLoadingSuccess={isLoadingSuccess}
+          loadError={loadError}
+          handleRemove={() => {}}
+          handleChange={() => {}}
+        />
       // <Home
       //   cartItems={cartItems}
       //   products={products}
