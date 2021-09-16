@@ -1,15 +1,9 @@
 import products from "../utils/demo-data";
 
-function getProducts(fail = false) {
+export function getProducts() {
   return new Promise((res, rej) => {
     setTimeout(() => {
-      if (fail) {
-        rej(new Error("Failed to fetch"));
-      }
-
-      res(products);
-    }, 1000);
-  });
+      res(products)
+    }, 3000)
+  })
 }
-
-export { getProducts };

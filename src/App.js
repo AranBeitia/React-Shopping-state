@@ -1,8 +1,7 @@
 import React, { Component } from "react";
-
-import Home from "./pages/Home";
-
-import * as api from "./api";
+import * as api from "./api"
+import products from "./utils/demo-data";
+// import Home from "./pages/Home";
 
 class App extends Component {
   constructor(props) {
@@ -10,26 +9,39 @@ class App extends Component {
 
     this.state = {
       products: [],
-      cartItems: [],
+      isLoadingSuccess: false,
       isLoading: false,
-      hasError: false,
-      loadingError: null,
-    };
+      isLoadingError: false,
+      loadError: null
+    }
   }
 
   componentDidMount() {
-    this.setState({
-      isLoading: true,
-    });
+    this.setState(prevState =>( {
+      ...prevState,
+      isLoading: true
+    }))
 
-    api.getProducts().then((data) => {
-      this.setState({
+    api.getProducts().then(data => {
+      this.setState(prevState => ({
+        ...prevState,
         products: data,
         isLoading: false,
-      });
-    });
+        isLoadingSuccess: true,
+        loadError: null
+      }))
+    })
+
+    console.log('mounted');
   }
 
+  componentDidUpdate() {
+    console.log('updated');
+  }
+
+  componentWillUnmount() {
+    console.log('unmounted');
+  }
   // handleAddToCart(productId) {}
 
   // handleChange(event, productId) {}
@@ -43,28 +55,26 @@ class App extends Component {
   // handleSetFavorite(productId) {}
 
   render() {
-    const {
-      cartItems,
-      products,
-      isLoading,
-      hasError,
-      loadingError,
-    } = this.state;
+    const { products, isLoading, isLoadingSuccess, loadError } = this.state;
 
     return (
-      <Home
-        cartItems={cartItems}
-        products={products}
-        isLoading={isLoading}
-        hasError={hasError}
-        loadingError={loadingError}
-        handleDownVote={() => {}}
-        handleUpVote={() => {}}
-        handleSetFavorite={() => {}}
-        handleAddToCart={() => {}}
-        handleRemove={() => {}}
-        handleChange={() => {}}
-      />
+      <>
+        { isLoading && <h4>Loading products</h4> }
+        { !isLoading && isLoadingSuccess && products.map(product => <p>{product.title}</p>) }
+      </>
+      // <Home
+      //   cartItems={cartItems}
+      //   products={products}
+      //   isLoading={isLoading}
+      //   hasError={hasError}
+      //   loadingError={loadingError}
+      //   handleDownVote={() => {}}
+      //   handleUpVote={() => {}}
+      //   handleSetFavorite={() => {}}
+      //   handleAddToCart={() => {}}
+      //   handleRemove={() => {}}
+      //   handleChange={() => {}}
+      // />
     );
   }
 }
